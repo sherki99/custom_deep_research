@@ -1,0 +1,2 @@
+# FOR VARD, 
+# I am an ai ingeenr junior, working in cusultanza company, this is my first projetct to work for a client, Vard(of finecantiere) my manager asked to do some research start to undertnsta in deep what they are doing.

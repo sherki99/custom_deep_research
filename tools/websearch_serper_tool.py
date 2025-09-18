@@ -1,12 +1,10 @@
-import os 
+import os
 from dotenv import load_dotenv
 import json
 from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, Field
 from langchain.tools import StructuredTool
-import aiohttp
-import asyncio
-from dotenv import load_dotenv
+import requests
 
 load_dotenv(override=True)
 
@@ -28,7 +26,7 @@ class WebSearchInput(BaseModel):
     safe_search: bool = Field(default=False, description="Enable safe search to filter explicit results")
 
 
-async def web_search_function(
+def web_search_function(
     research_topic: str,
     search_type: str = "search",
     num_results: int = 5,
@@ -56,19 +54,20 @@ async def web_search_function(
     if safe_search: payload["safe"] = "active"
 
     try:
-        async with aiohttp.ClientSession() as session:
-            async with session.post(url, headers=headers, json=payload) as resp:
-                resp.raise_for_status()
-                data = await resp.json()
+        resp = requests.post(url, headers=headers, json=payload)
+        resp.raise_for_status()
+        data = resp.json()
+
 
         results = []
         for item in data.get("organic", [])[:num_results]:
+           # print(item)
             results.append({
                 "title": item.get("title"),
                 "snippet": item.get("snippet"),
                 "url": item.get("link"),
                 "date": item.get("date"),
-                "source": item.get("source"),
+                "source": item.get("source") or item.get("domain") or "UnKnow",
             })
 
         return json.dumps({
@@ -82,11 +81,11 @@ async def web_search_function(
         return json.dumps({"error": str(e), "results": []})
 
 def create_websearch_tool():
-    """create lanchain StructuredTool for serper web search"""
+    """Create LangChain StructuredTool for Serper web search"""
     return StructuredTool.from_function(
         name="web_search",
         description="Search the web/news/scholar using the Serper API",
         func=web_search_function,
         args_schema=WebSearchInput,
-        coroutine=web_search_function
+        coroutine=None  # Not async anymore
     )

@@ -28,7 +28,7 @@ class OnlineResearchState(BaseModel):
 
     # --- Content extraction ---
     extracted_content: Dict[str, Dict[str, Any]] = Field(default={}, description="Content extracted from URLs")
-    content_stats: Dict[str, int] = Field(default={}, description="Stats about extracted content")
+    content_stats: Dict[str, float] = Field(default={}, description="Stats about extracted content")
     failed_extractions: List[str] = Field(default=[], description="URLs failed to extract content")
 
     # --- Source validation ---
